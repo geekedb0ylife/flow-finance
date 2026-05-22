@@ -5,930 +5,261 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#000000">
     <title>flow. • Finance</title>
-    
-    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=SF+Pro+Display:wght@400;500;600&amp;display=swap');
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
-        }
-        
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif; }
         .apple-music-bg { background: #000000; }
-        
-        .section-header {
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-        }
-        
-        .music-card {
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                       box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            background: #1c1c1e;
-        }
-        
-        .music-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 
-                       0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-        
-        .nav-item {
-            transition: all 0.1s ease;
-        }
-        
-        .nav-item.active {
-            background-color: #282828;
-            color: white;
-            border-radius: 8px;
-        }
-        
-        .transaction-row:hover { background-color: #1c1c1e; }
-        
+        .music-card { transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1); background:#1c1c1e; }
+        .music-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+        .nav-item.active { background-color: #282828; color: white; border-radius: 8px; }
         .finance-number { font-variant-numeric: tabular-nums; }
-        
-        .apple-header {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-        }
-        
-        .metric-value {
-            font-size: 2.25rem;
-            font-weight: 700;
-            line-height: 1;
-            letter-spacing: -0.04em;
-        }
-        
-        .modal {
-            animation: modalPop 0.2s cubic-bezier(0.32, 0.72, 0, 1);
-        }
-        
-        @keyframes modalPop {
-            from { opacity: 0; transform: scale(0.96) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        
+        .apple-header { background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); }
+        .modal { animation: modalPop 0.2s cubic-bezier(0.32, 0.72, 0, 1); }
+        @keyframes modalPop { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .goal-progress {
-            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+        .goal-progress { transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1); }
     </style>
 </head>
 <body class="apple-music-bg text-white overflow-hidden">
     <div class="flex h-screen">
-        
         <!-- Sidebar -->
         <div class="w-72 bg-zinc-950 border-r border-zinc-800 flex flex-col">
             <div class="px-8 pt-8 pb-6">
                 <div class="flex items-center gap-x-3">
-                    <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center">
-                        <i class="fa-solid fa-wallet text-black text-3xl"></i>
-                    </div>
+                    <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center"><i class="fa-solid fa-wallet text-black text-3xl"></i></div>
                     <span class="font-semibold text-3xl tracking-tighter">flow.</span>
                 </div>
                 <p class="text-[10px] text-zinc-500 mt-1 pl-1 tracking-[2px]">FINANCE REIMAGINED</p>
             </div>
-            
             <div class="px-4 space-y-1">
-                <div onclick="switchView('overview')" class="nav-item active flex items-center gap-x-3 px-4 py-3 text-sm font-medium cursor-pointer" id="nav-overview">
-                    <i class="fa-solid fa-home w-5"></i><span>Overview</span>
-                </div>
-                <div onclick="switchView('transactions')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-transactions">
-                    <i class="fa-solid fa-list w-5"></i><span>Transactions</span>
-                </div>
-                <div onclick="switchView('budgets')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-budgets">
-                    <i class="fa-solid fa-chart-pie w-5"></i><span>Budgets</span>
-                </div>
-                <div onclick="switchView('goals')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-goals">
-                    <i class="fa-solid fa-bullseye w-5"></i><span>Goals</span>
-                </div>
-                <div onclick="switchView('insights')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-insights">
-                    <i class="fa-solid fa-chart-line w-5"></i><span>Insights</span>
-                </div>
+                <div onclick="switchView('overview')" class="nav-item active flex items-center gap-x-3 px-4 py-3 text-sm font-medium cursor-pointer" id="nav-overview"><i class="fa-solid fa-home w-5"></i><span>Overview</span></div>
+                <div onclick="switchView('transactions')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-transactions"><i class="fa-solid fa-list w-5"></i><span>Transactions</span></div>
+                <div onclick="switchView('budgets')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-budgets"><i class="fa-solid fa-chart-pie w-5"></i><span>Budgets</span></div>
+                <div onclick="switchView('goals')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-goals"><i class="fa-solid fa-bullseye w-5"></i><span>Goals</span></div>
+                <div onclick="switchView('insights')" class="nav-item flex items-center gap-x-3 px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white cursor-pointer" id="nav-insights"><i class="fa-solid fa-chart-line w-5"></i><span>Insights</span></div>
             </div>
-            
             <div class="mt-auto px-8 pb-8">
                 <div class="bg-zinc-900 rounded-3xl p-4">
                     <div class="flex items-center gap-x-3">
                         <div class="w-9 h-9 bg-zinc-700 rounded-full overflow-hidden ring-2 ring-offset-2 ring-offset-zinc-950 ring-zinc-700">
-                            <img src="https://i.pravatar.cc/36?img=68" alt="Chris" class="w-full h-full object-cover">
+                            <img src="https://i.pravatar.cc/36?img=68" class="w-full h-full object-cover">
                         </div>
-                        <div>
-                            <p class="text-sm font-semibold">Chris 🥷🏿</p>
-                            <p class="text-[10px] text-zinc-500">Seattle, WA</p>
-                        </div>
+                        <div><p class="text-sm font-semibold">Chris 🥷🏿</p><p class="text-[10px] text-zinc-500">Seattle, WA</p></div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Main Content -->
+
+        <!-- Main -->
         <div class="flex-1 flex flex-col min-w-0">
-            
-            <!-- Top Bar -->
-            <div class="apple-header h-16 border-b border-zinc-800 flex items-center justify-between px-8 z-50">
+            <div class="apple-header h-16 border-b border-zinc-800 flex items-center justify-between px-8">
                 <h1 id="view-title" class="text-2xl font-semibold tracking-tight">Overview</h1>
-                
                 <div class="flex items-center gap-x-4">
                     <div class="relative w-80">
-                        <input type="text" id="global-search" placeholder="Search..." onkeyup="handleGlobalSearch(event)"
-                               class="w-full bg-zinc-900 border border-zinc-700 focus:border-zinc-500 transition-colors text-sm rounded-3xl pl-10 py-2.5 outline-none">
-                        <i class="fa-solid fa-search absolute left-4 top-3 text-zinc-500 text-sm"></i>
+                        <input type="text" id="global-search" placeholder="Search..." onkeyup="handleGlobalSearch(event)" class="w-full bg-zinc-900 border border-zinc-700 text-sm rounded-3xl pl-10 py-2.5 outline-none">
+                        <i class="fa-solid fa-search absolute left-4 top-3 text-zinc-500"></i>
                     </div>
-                    
-                    <button onclick="showAddTransactionModal()"
-                            class="flex items-center gap-x-2 bg-white hover:bg-zinc-200 active:scale-[0.985] transition-all text-black px-5 py-2.5 rounded-3xl text-sm font-semibold">
-                        <i class="fa-solid fa-plus"></i>
-                        <span class="font-semibold">Add Transaction</span>
+                    <button onclick="showAddTransactionModal()" class="flex items-center gap-x-2 bg-white text-black px-5 py-2.5 rounded-3xl text-sm font-semibold active:scale-[0.985]">
+                        <i class="fa-solid fa-plus"></i><span class="font-semibold">Add Transaction</span>
                     </button>
                 </div>
             </div>
-            
-            <!-- Content -->
-            <div class="flex-1 overflow-auto" id="content-area">
-                
+
+            <div class="flex-1 overflow-auto">
                 <!-- OVERVIEW -->
                 <div id="view-overview" class="view p-8">
-                    <div class="mb-10">
-                        <div class="flex items-end justify-between">
-                            <div>
-                                <p class="text-zinc-400 text-sm tracking-widest font-medium">TOTAL BALANCE</p>
-                                <div class="flex items-baseline gap-x-3 mt-1">
-                                    <span id="total-balance" class="metric-value finance-number">$12,847.32</span>
-                                    <div class="flex items-center gap-x-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-2xl text-xs font-medium">
-                                        <i class="fa-solid fa-arrow-trend-up"></i>
-                                        <span>+8.4% this month</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xs text-zinc-500">MAY 2026</p>
-                                <p class="text-emerald-400 text-sm font-medium">+$1,240 net flow</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Quick Stats -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                            <div class="flex justify-between">
-                                <div>
-                                    <p class="text-xs tracking-widest text-zinc-400">INCOME</p>
-                                    <p id="total-income" class="text-3xl font-semibold mt-3 finance-number text-emerald-400">$8,920</p>
-                                </div>
-                                <div class="w-10 h-10 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-                                    <i class="fa-solid fa-arrow-down text-emerald-400 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                            <div class="flex justify-between">
-                                <div>
-                                    <p class="text-xs tracking-widest text-zinc-400">EXPENSES</p>
-                                    <p id="total-expenses" class="text-3xl font-semibold mt-3 finance-number text-red-400">$7,680</p>
-                                </div>
-                                <div class="w-10 h-10 bg-red-500/10 rounded-2xl flex items-center justify-center">
-                                    <i class="fa-solid fa-arrow-up text-red-400 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                            <div class="flex justify-between">
-                                <div>
-                                    <p class="text-xs tracking-widest text-zinc-400">NET WORTH</p>
-                                    <p id="net-worth" class="text-3xl font-semibold mt-3 finance-number">$48,920</p>
-                                </div>
-                                <div class="w-10 h-10 bg-blue-500/10 rounded-2xl flex items-center justify-center">
-                                    <i class="fa-solid fa-wallet text-blue-400 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Accounts -->
                     <div class="mb-8">
-                        <div class="flex justify-between items-center mb-4 px-1">
-                            <h2 class="text-xl font-semibold">Your Accounts</h2>
+                        <p class="text-xs tracking-[2px] text-zinc-400">TOTAL BALANCE</p>
+                        <div class="flex items-end gap-x-4">
+                            <span id="total-balance" class="text-6xl font-semibold tracking-tighter finance-number">$12,847</span>
+                            <div class="mb-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-2xl text-xs flex items-center gap-x-1"><i class="fa-solid fa-arrow-trend-up"></i> <span>+8.4%</span></div>
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5"><p class="text-xs text-zinc-400">INCOME</p><p id="total-income" class="text-3xl font-semibold text-emerald-400 mt-1 finance-number">$8,920</p></div>
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5"><p class="text-xs text-zinc-400">EXPENSES</p><p id="total-expenses" class="text-3xl font-semibold text-red-400 mt-1 finance-number">$7,680</p></div>
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5"><p class="text-xs text-zinc-400">GOALS SAVED</p><p id="total-goals-saved" class="text-3xl font-semibold text-teal-400 mt-1 finance-number">$4,050</p></div>
+                    </div>
+
+                    <div class="mb-8">
+                        <div class="flex justify-between mb-3 px-1"><h2 class="font-semibold">Your Accounts</h2></div>
                         <div id="accounts-container" class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"></div>
                     </div>
-                    
-                    <!-- Active Goals -->
+
                     <div class="mb-8">
-                        <div class="flex justify-between items-center mb-4 px-1">
-                            <h2 class="text-xl font-semibold">Active Goals</h2>
-                            <button onclick="switchView('goals')" class="text-xs text-zinc-400 hover:text-white flex items-center gap-x-1">SEE ALL <i class="fa-solid fa-arrow-right ml-1"></i></button>
-                        </div>
+                        <div class="flex justify-between mb-3 px-1"><h2 class="font-semibold">Active Goals</h2><button onclick="switchView('goals')" class="text-xs text-zinc-400">SEE ALL →</button></div>
                         <div id="active-goals-container" class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"></div>
                     </div>
-                    
-                    <!-- Recent Activity -->
+
                     <div>
-                        <div class="flex justify-between items-center mb-4 px-1">
-                            <h2 class="text-xl font-semibold">Recent Activity</h2>
-                            <button onclick="switchView('transactions')" class="text-xs text-zinc-400 hover:text-white flex items-center gap-x-1">SEE ALL <i class="fa-solid fa-arrow-right ml-1"></i></button>
-                        </div>
+                        <div class="flex justify-between mb-3 px-1"><h2 class="font-semibold">Recent Activity</h2><button onclick="switchView('transactions')" class="text-xs text-zinc-400">SEE ALL →</button></div>
                         <div id="recent-transactions" class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden"></div>
                     </div>
                 </div>
-                
+
                 <!-- TRANSACTIONS -->
                 <div id="view-transactions" class="view hidden p-8">
                     <div class="flex justify-between mb-6">
-                        <div>
-                            <h2 class="text-2xl font-semibold">Transactions</h2>
-                            <p class="text-sm text-zinc-400">All activity</p>
-                        </div>
-                        <div class="flex gap-x-3">
-                            <select id="filter-type" onchange="filterTransactions()" class="bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
-                                <option value="">All</option>
-                                <option value="income">Income</option>
-                                <option value="expense">Expenses</option>
-                            </select>
-                            <select id="filter-category" onchange="filterTransactions()" class="bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-2 text-sm">
-                                <option value="">All Categories</option>
-                            </select>
+                        <h2 class="text-2xl font-semibold">Transactions</h2>
+                        <div class="flex gap-3">
+                            <select id="filter-type" onchange="filterTransactions()" class="bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-2 text-sm"><option value="">All</option><option value="income">Income</option><option value="expense">Expenses</option></select>
+                            <select id="filter-category" onchange="filterTransactions()" class="bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-2 text-sm"><option value="">All Categories</option></select>
                         </div>
                     </div>
-                    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
-                        <div id="transactions-list" class="max-h-[620px] overflow-auto"></div>
-                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl"><div id="transactions-list" class="max-h-[620px] overflow-auto"></div></div>
                 </div>
-                
+
                 <!-- BUDGETS -->
                 <div id="view-budgets" class="view hidden p-8">
-                    <div class="flex justify-between mb-8">
-                        <h2 class="text-2xl font-semibold">Monthly Budgets</h2>
-                        <button onclick="showAddBudgetModal()" class="px-5 py-2 bg-white text-black rounded-3xl text-sm font-semibold flex items-center gap-x-2">
-                            <i class="fa-solid fa-plus"></i> New Budget
-                        </button>
-                    </div>
-                    <div id="budgets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-semibold">Budgets</h2><button onclick="showAddBudgetModal()" class="px-5 py-2 bg-white text-black rounded-3xl text-sm font-semibold">+ New Budget</button></div>
+                    <div id="budgets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
-                
+
                 <!-- GOALS -->
                 <div id="view-goals" class="view hidden p-8">
-                    <div class="flex justify-between items-center mb-8">
-                        <div>
-                            <h2 class="text-2xl font-semibold">Savings Goals</h2>
-                            <p class="text-sm text-zinc-400">Stay focused on what matters</p>
-                        </div>
-                        <button onclick="showAddGoalModal()" 
-                                class="px-5 py-2.5 bg-white text-black rounded-3xl text-sm font-semibold flex items-center gap-x-2">
-                            <i class="fa-solid fa-plus"></i> New Goal
-                        </button>
+                    <div class="flex justify-between mb-8">
+                        <div><h2 class="text-2xl font-semibold">Savings Goals</h2><p class="text-sm text-zinc-400">Track what you're building toward</p></div>
+                        <button onclick="showAddGoalModal()" class="px-5 py-2.5 bg-white text-black rounded-3xl text-sm font-semibold flex items-center gap-x-2"><i class="fa-solid fa-plus"></i> New Goal</button>
                     </div>
-                    
                     <div id="goals-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
                 </div>
-                
+
                 <!-- INSIGHTS -->
                 <div id="view-insights" class="view hidden p-8">
-                    <h2 class="text-2xl font-semibold mb-8">Insights</h2>
+                    <h2 class="text-2xl font-semibold mb-6">Insights</h2>
                     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
                         <div class="lg:col-span-3 bg-zinc-900 border border-zinc-800 rounded-3xl p-7">
-                            <p class="font-semibold mb-4">Spending by Category</p>
-                            <div class="h-80"><canvas id="category-pie-chart"></canvas></div>
+                            <p class="font-semibold mb-4">Spending Breakdown</p>
+                            <canvas id="category-pie-chart" class="h-80"></canvas>
                         </div>
-                        <div class="lg:col-span-2 space-y-4">
-                            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-                                <p class="font-semibold mb-4">Top Categories</p>
-                                <div id="top-categories" class="space-y-3 text-sm"></div>
-                            </div>
+                        <div class="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                            <p class="font-semibold mb-4">Top Spending</p>
+                            <div id="top-categories" class="space-y-3"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Mini Player Bar -->
-            <div class="h-16 px-6 flex items-center justify-between text-sm border-t border-zinc-800 bg-zinc-950">
-                <div class="flex items-center gap-x-3">
-                    <div class="w-9 h-9 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-xl flex items-center justify-center">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium">May 2026 • On track</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-x-2 text-xs text-zinc-400">
-                    <div class="h-1.5 w-24 bg-zinc-700 rounded-full overflow-hidden"><div class="h-full w-[68%] bg-emerald-400"></div></div>
-                    <span>68%</span>
-                </div>
+
+            <!-- Mini Bar -->
+            <div class="h-14 px-6 flex items-center justify-between text-xs border-t border-zinc-800 bg-zinc-950">
+                <div>May 2026 • On track</div>
+                <div class="flex items-center gap-x-2"><div class="h-1 w-20 bg-zinc-700 rounded"><div class="h-1 w-[68%] bg-emerald-400 rounded"></div></div><span>68%</span></div>
             </div>
         </div>
     </div>
-    
-    <!-- Add Transaction Modal -->
-    <div id="add-transaction-modal" onclick="if (event.target.id === 'add-transaction-modal') hideAddTransactionModal()" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center">
+
+    <!-- Modals -->
+    <div id="add-transaction-modal" onclick="if(event.target.id==='add-transaction-modal') hideAddTransactionModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
         <div onclick="event.stopImmediatePropagation()" class="modal bg-zinc-900 border border-zinc-700 w-full max-w-md rounded-3xl p-7">
-            <div class="flex justify-between mb-6">
-                <h3 class="font-semibold text-xl">New Transaction</h3>
-                <button onclick="hideAddTransactionModal()" class="text-zinc-400"><i class="fa-solid fa-times text-xl"></i></button>
-            </div>
-            
-            <div class="space-y-5">
-                <div>
-                    <label class="text-xs text-zinc-400 block mb-2">TYPE</label>
-                    <div class="flex bg-zinc-950 rounded-2xl p-1">
-                        <div onclick="setTransactionType('expense')" id="type-expense" class="flex-1 text-center py-2.5 rounded-[14px] cursor-pointer bg-zinc-800">Expense</div>
-                        <div onclick="setTransactionType('income')" id="type-income" class="flex-1 text-center py-2.5 rounded-[14px] cursor-pointer text-zinc-400">Income</div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs text-zinc-400 block mb-1">AMOUNT</label>
-                        <div class="relative"><span class="absolute left-4 top-3 text-zinc-400">$</span>
-                        <input type="number" id="txn-amount" step="0.01" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl pl-8 py-3 text-lg outline-none"></div>
-                    </div>
-                    <div>
-                        <label class="text-xs text-zinc-400 block mb-1">DATE</label>
-                        <input type="date" id="txn-date" value="2026-05-22" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 text-sm">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="text-xs text-zinc-400 block mb-1">DESCRIPTION</label>
-                    <input type="text" id="txn-description" placeholder="e.g. Whole Foods" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 outline-none">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs text-zinc-400 block mb-1">CATEGORY</label>
-                        <select id="txn-category" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 text-sm">
-                            <option>Groceries</option><option>Dining Out</option><option>Transportation</option>
-                            <option>Rent</option><option>Utilities</option><option>Entertainment</option>
-                            <option>Shopping</option><option>Salary</option><option>Freelance</option><option>Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-zinc-400 block mb-1">ACCOUNT</label>
-                        <select id="txn-account" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 text-sm"></select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex gap-x-3 mt-8">
-                <button onclick="hideAddTransactionModal()" class="flex-1 py-3.5 rounded-2xl border border-zinc-700">Cancel</button>
-                <button onclick="addTransaction()" class="flex-1 py-3.5 bg-white text-black rounded-2xl font-semibold">Add Transaction</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Add Goal Modal -->
-    <div id="add-goal-modal" onclick="if (event.target.id === 'add-goal-modal') hideAddGoalModal()" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center">
-        <div onclick="event.stopImmediatePropagation()" class="modal bg-zinc-900 border border-zinc-700 w-full max-w-md rounded-3xl p-7">
-            <h3 class="font-semibold text-xl mb-6">Create New Goal</h3>
-            
+            <h3 class="font-semibold text-xl mb-5">New Transaction</h3>
             <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-zinc-400">GOAL NAME</label>
-                    <input type="text" id="goal-name" placeholder="e.g. Emergency Fund" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 mt-1 outline-none">
+                <div class="flex bg-zinc-950 rounded-2xl p-1">
+                    <div onclick="setTransactionType('expense')" id="type-expense" class="flex-1 text-center py-2 rounded-[14px] bg-zinc-800 cursor-pointer">Expense</div>
+                    <div onclick="setTransactionType('income')" id="type-income" class="flex-1 text-center py-2 cursor-pointer text-zinc-400">Income</div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs text-zinc-400">TARGET AMOUNT</label>
-                        <div class="relative mt-1"><span class="absolute left-4 top-3 text-zinc-400">$</span>
-                        <input type="number" id="goal-target" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl pl-8 py-3 outline-none"></div>
-                    </div>
-                    <div>
-                        <label class="text-xs text-zinc-400">DEADLINE (optional)</label>
-                        <input type="date" id="goal-deadline" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 mt-1 outline-none">
-                    </div>
+                    <div><label class="text-xs text-zinc-400">AMOUNT</label><input type="number" id="txn-amount" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 mt-1"></div>
+                    <div><label class="text-xs text-zinc-400">DATE</label><input type="date" id="txn-date" value="2026-05-22" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 mt-1"></div>
+                </div>
+                <div><label class="text-xs text-zinc-400">DESCRIPTION</label><input type="text" id="txn-description" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 mt-1"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs text-zinc-400">CATEGORY</label><select id="txn-category" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 mt-1"><option>Groceries</option><option>Dining Out</option><option>Transportation</option><option>Rent</option><option>Utilities</option><option>Entertainment</option><option>Shopping</option><option>Salary</option><option>Freelance</option></select></div>
+                    <div><label class="text-xs text-zinc-400">ACCOUNT</label><select id="txn-account" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl px-4 py-3 mt-1"></select></div>
                 </div>
             </div>
-            
-            <div class="flex gap-x-3 mt-8">
-                <button onclick="hideAddGoalModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700">Cancel</button>
-                <button onclick="addNewGoal()" class="flex-1 py-3 bg-white text-black rounded-2xl font-semibold">Create Goal</button>
+            <div class="flex gap-x-3 mt-7">
+                <button onclick="hideAddTransactionModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700">Cancel</button>
+                <button onclick="addTransaction()" class="flex-1 py-3 bg-white text-black rounded-2xl font-semibold">Add</button>
             </div>
         </div>
     </div>
-    
+
+    <!-- Goal Contribution Modal -->
+    <div id="goal-contribute-modal" onclick="if(event.target.id==='goal-contribute-modal') hideContributeModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="modal bg-zinc-900 border border-zinc-700 w-full max-w-sm rounded-3xl p-7">
+            <h3 class="font-semibold text-xl mb-1">Add to Goal</h3>
+            <p id="contribute-goal-name" class="text-emerald-400 text-sm mb-5"></p>
+            
+            <div>
+                <label class="text-xs text-zinc-400">AMOUNT</label>
+                <div class="relative mt-1"><span class="absolute left-4 top-3 text-zinc-400">$</span>
+                <input type="number" id="contribute-amount" class="bg-zinc-950 border border-zinc-700 w-full rounded-2xl pl-8 py-3 text-lg"></div>
+            </div>
+            
+            <div class="flex gap-x-3 mt-7">
+                <button onclick="hideContributeModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700">Cancel</button>
+                <button onclick="confirmContribution()" class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-black rounded-2xl font-semibold">Contribute</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // State
-        let transactions = JSON.parse(localStorage.getItem('flow_transactions')) || [
-            { id: 1, date: "2026-05-20", description: "Paycheck - Hallmark", amount: 2450, type: "income", category: "Salary", account: "Chase Checking" },
-            { id: 2, date: "2026-05-19", description: "Whole Foods Market", amount: -87.42, type: "expense", category: "Groceries", account: "Chase Checking" },
-            { id: 3, date: "2026-05-18", description: "Uber to Capitol Hill", amount: -18.75, type: "expense", category: "Transportation", account: "Amex Gold" },
-            { id: 4, date: "2026-05-15", description: "Freelance AI Project", amount: 850, type: "income", category: "Freelance", account: "Chase Checking" },
-            { id: 5, date: "2026-05-10", description: "Rent - May", amount: -1500, type: "expense", category: "Rent", account: "Chase Checking" },
-        ];
+        let transactions = JSON.parse(localStorage.getItem('flow_transactions')) || [{id:1,date:"2026-05-20",description:"Paycheck - Hallmark",amount:2450,type:"income",category:"Salary",account:"Chase Checking"},{id:2,date:"2026-05-19",description:"Whole Foods",amount:-87,type:"expense",category:"Groceries",account:"Chase Checking"},{id:3,date:"2026-05-15",description:"Freelance Project",amount:850,type:"income",category:"Freelance",account:"Chase Checking"}];
+        let accounts = JSON.parse(localStorage.getItem('flow_accounts')) || [{id:1,name:"Chase Checking",balance:4250,type:"checking",color:"#0A84FF"},{id:2,name:"Amex Gold",balance:1890,type:"credit",color:"#FF9500"},{id:3,name:"High Yield Savings",balance:6705,type:"savings",color:"#34C759"}];
+        let budgets = JSON.parse(localStorage.getItem('flow_budgets')) || {"Groceries":{budgeted:400,spent:0},"Dining Out":{budgeted:250,spent:0}};
+        let goals = JSON.parse(localStorage.getItem('flow_goals')) || [{id:1,name:"Emergency Fund",target:10000,saved:3200,deadline:"2026-12-31",contributions:[]},{id:2,name:"New MacBook Pro",target:3200,saved:850,deadline:"2026-09-01",contributions:[]}];
         
-        let accounts = JSON.parse(localStorage.getItem('flow_accounts')) || [
-            { id: 1, name: "Chase Checking", balance: 4250.75, type: "checking", color: "#0A84FF" },
-            { id: 2, name: "Amex Gold", balance: 1890.40, type: "credit", color: "#FF9500" },
-            { id: 3, name: "High Yield Savings", balance: 6705.17, type: "savings", color: "#34C759" }
-        ];
-        
-        let budgets = JSON.parse(localStorage.getItem('flow_budgets')) || {
-            "Groceries": { budgeted: 400, spent: 0 },
-            "Dining Out": { budgeted: 250, spent: 0 },
-            "Transportation": { budgeted: 180, spent: 0 },
-            "Entertainment": { budgeted: 120, spent: 0 }
-        };
-        
-        let goals = JSON.parse(localStorage.getItem('flow_goals')) || [
-            { id: 1, name: "Emergency Fund", target: 10000, saved: 3200, deadline: "2026-12-31" },
-            { id: 2, name: "New MacBook Pro", target: 3200, saved: 850, deadline: "2026-09-01" }
-        ];
-        
-        let currentView = 'overview';
-        let currentTransactionType = 'expense';
-        let pieChartInstance = null;
-        
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-        }
-        
-        function formatDate(dateStr) {
-            return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-        
-        function saveData() {
-            localStorage.setItem('flow_transactions', JSON.stringify(transactions));
-            localStorage.setItem('flow_accounts', JSON.stringify(accounts));
-            localStorage.setItem('flow_budgets', JSON.stringify(budgets));
-            localStorage.setItem('flow_goals', JSON.stringify(goals));
-        }
-        
-        function calculateTotals() {
-            let income = 0, expenses = 0;
-            transactions.forEach(t => {
-                if (t.type === 'income') income += t.amount;
-                else expenses += Math.abs(t.amount);
-            });
-            const balance = accounts.reduce((sum, a) => sum + a.balance, 0);
-            return { income, expenses, balance };
-        }
-        
-        function updateBudgetSpending() {
-            Object.keys(budgets).forEach(cat => budgets[cat].spent = 0);
-            const currentMonth = "2026-05";
-            transactions.forEach(t => {
-                if (t.type === 'expense' && t.date.startsWith(currentMonth) && budgets[t.category]) {
-                    budgets[t.category].spent += Math.abs(t.amount);
-                }
-            });
-        }
-        
-        function renderAccounts() {
-            const container = document.getElementById('accounts-container');
-            container.innerHTML = '';
-            accounts.forEach(acc => {
-                const card = document.createElement('div');
-                card.className = `music-card min-w-[210px] border border-zinc-700 rounded-3xl p-5 flex-shrink-0 cursor-pointer`;
-                card.innerHTML = `
-                    <div class="flex justify-between">
-                        <div><p class="font-medium">${acc.name}</p><p class="text-xs text-zinc-400">${acc.type}</p></div>
-                        <div class="w-8 h-8 rounded-2xl flex items-center justify-center" style="background:${acc.color}20">
-                            <i class="fa-solid fa-wallet text-sm" style="color:${acc.color}"></i>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-semibold tracking-tighter mt-6 finance-number">${formatCurrency(acc.balance)}</p>
-                `;
-                container.appendChild(card);
-            });
-        }
-        
-        function renderRecentTransactions() {
-            const container = document.getElementById('recent-transactions');
-            container.innerHTML = '';
-            const recent = [...transactions].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,5);
-            
-            recent.forEach(t => {
-                const row = document.createElement('div');
-                row.className = `px-5 py-4 flex justify-between items-center border-b border-zinc-800 last:border-none transaction-row`;
-                const color = t.type === 'income' ? 'text-emerald-400' : 'text-red-400';
-                const prefix = t.type === 'income' ? '+' : '';
-                row.innerHTML = `
-                    <div class="flex items-center gap-x-3">
-                        <div class="w-9 h-9 rounded-2xl flex items-center justify-center ${t.type === 'income' ? 'bg-emerald-500/10' : 'bg-red-500/10'}">
-                            <i class="fa-solid ${t.type === 'income' ? 'fa-arrow-down text-emerald-400' : 'fa-arrow-up text-red-400'}"></i>
-                        </div>
-                        <div><p class="font-medium">${t.description}</p><p class="text-xs text-zinc-400">${formatDate(t.date)} • ${t.category}</p></div>
-                    </div>
-                    <p class="font-semibold finance-number ${color}">${prefix}${formatCurrency(Math.abs(t.amount))}</p>
-                `;
-                container.appendChild(row);
-            });
-        }
-        
-        function renderActiveGoals() {
-            const container = document.getElementById('active-goals-container');
-            container.innerHTML = '';
-            
-            goals.slice(0, 3).forEach(goal => {
-                const progress = Math.min((goal.saved / goal.target) * 100, 100);
-                const card = document.createElement('div');
-                card.className = `music-card min-w-[240px] border border-zinc-700 rounded-3xl p-5 flex-shrink-0`;
-                card.innerHTML = `
-                    <div class="flex justify-between mb-3">
-                        <p class="font-semibold">${goal.name}</p>
-                        <span class="text-xs px-2 py-0.5 bg-zinc-800 rounded">${progress.toFixed(0)}%</span>
-                    </div>
-                    <div class="h-2 bg-zinc-800 rounded-full mb-2 overflow-hidden">
-                        <div class="h-2 bg-emerald-400 rounded-full goal-progress" style="width: ${progress}%"></div>
-                    </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-emerald-400">${formatCurrency(goal.saved)}</span>
-                        <span class="text-zinc-400">of ${formatCurrency(goal.target)}</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-        
-        function renderAllTransactions(filtered = null) {
-            const container = document.getElementById('transactions-list');
-            container.innerHTML = '';
-            let list = filtered || [...transactions].sort((a,b)=> new Date(b.date)-new Date(a.date));
-            
-            if (list.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-zinc-400">No transactions found.</div>`;
-                return;
-            }
-            
-            const header = document.createElement('div');
-            header.className = `grid grid-cols-12 px-6 py-3 text-xs text-zinc-400 border-b border-zinc-700 bg-zinc-950`;
-            header.innerHTML = `<div class="col-span-5">DESCRIPTION</div><div class="col-span-2">DATE</div><div class="col-span-2">CATEGORY</div><div class="col-span-2 text-right">AMOUNT</div><div class="col-span-1"></div>`;
-            container.appendChild(header);
-            
-            list.forEach(t => {
-                const row = document.createElement('div');
-                row.className = `grid grid-cols-12 px-6 py-4 items-center border-b border-zinc-800 text-sm transaction-row`;
-                const color = t.type === 'income' ? 'text-emerald-400' : 'text-red-400';
-                const prefix = t.type === 'income' ? '+' : '';
-                row.innerHTML = `
-                    <div class="col-span-5"><p class="font-medium">${t.description}</p><p class="text-xs text-zinc-500">${t.account}</p></div>
-                    <div class="col-span-2 text-zinc-400">${formatDate(t.date)}</div>
-                    <div class="col-span-2"><span class="px-3 py-1 text-xs bg-zinc-800 rounded-2xl">${t.category}</span></div>
-                    <div class="col-span-2 text-right font-semibold finance-number ${color}">${prefix}${formatCurrency(Math.abs(t.amount))}</div>
-                    <div class="col-span-1 text-right"><button onclick="deleteTransaction(${t.id}, event)" class="text-zinc-500 hover:text-red-400"><i class="fa-solid fa-trash text-xs"></i></button></div>
-                `;
-                container.appendChild(row);
-            });
-        }
-        
-        function filterTransactions() {
-            const type = document.getElementById('filter-type').value;
-            const cat = document.getElementById('filter-category').value;
-            let filtered = transactions;
-            if (type) filtered = filtered.filter(t => t.type === type);
-            if (cat) filtered = filtered.filter(t => t.category === cat);
-            renderAllTransactions(filtered);
-        }
-        
-        function renderBudgets() {
-            updateBudgetSpending();
-            const container = document.getElementById('budgets-grid');
-            container.innerHTML = '';
-            
-            Object.keys(budgets).forEach(cat => {
-                const b = budgets[cat];
-                const pct = b.budgeted > 0 ? Math.min((b.spent / b.budgeted) * 100, 100) : 0;
-                const over = b.spent > b.budgeted;
-                
-                const card = document.createElement('div');
-                card.className = `music-card border border-zinc-700 rounded-3xl p-6 cursor-pointer`;
-                card.innerHTML = `
-                    <div class="flex justify-between mb-4"><p class="font-semibold">${cat}</p><i class="fa-solid fa-wallet text-zinc-400"></i></div>
-                    <div>
-                        <div class="flex justify-between mb-1"><span class="text-2xl font-semibold">${formatCurrency(b.spent)}</span><span class="text-xs text-zinc-400">/ ${formatCurrency(b.budgeted)}</span></div>
-                        <div class="h-2 bg-zinc-800 rounded-full overflow-hidden"><div class="h-2 ${over ? 'bg-red-500' : 'bg-emerald-400'} rounded-full" style="width:${pct}%"></div></div>
-                        <div class="flex justify-between text-xs mt-1"><span class="${over ? 'text-red-400' : 'text-emerald-400'}">${over ? 'Over' : formatCurrency(b.budgeted - b.spent) + ' left'}</span><span>${pct.toFixed(0)}%</span></div>
-                    </div>
-                `;
-                card.onclick = () => editBudget(cat);
-                container.appendChild(card);
-            });
-        }
-        
-        function editBudget(category) {
-            const newVal = prompt(`New budget for ${category}:`, budgets[category].budgeted);
-            if (newVal && !isNaN(newVal)) {
-                budgets[category].budgeted = parseFloat(newVal);
-                saveData();
-                renderBudgets();
-            }
-        }
-        
-        function renderGoals() {
-            const container = document.getElementById('goals-grid');
-            container.innerHTML = '';
-            
-            if (goals.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 text-zinc-400">No goals yet. Create your first one!</div>`;
-                return;
-            }
-            
-            goals.forEach(goal => {
-                const progress = Math.min((goal.saved / goal.target) * 100, 100);
-                const card = document.createElement('div');
-                card.className = `music-card border border-zinc-700 rounded-3xl p-6`;
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <p class="font-semibold text-lg">${goal.name}</p>
-                            ${goal.deadline ? `<p class="text-xs text-zinc-400">Due ${formatDate(goal.deadline)}</p>` : ''}
-                        </div>
-                        <button onclick="contributeToGoal(${goal.id}, event)" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-2xl hover:bg-emerald-500/20">+ Add</button>
-                    </div>
-                    
-                    <div class="mt-2">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="font-medium text-emerald-400">${formatCurrency(goal.saved)}</span>
-                            <span class="text-zinc-400">of ${formatCurrency(goal.target)}</span>
-                        </div>
-                        <div class="h-3 bg-zinc-800 rounded-full overflow-hidden">
-                            <div class="h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full goal-progress transition-all" style="width: ${progress}%"></div>
-                        </div>
-                        <div class="text-right text-xs text-zinc-400 mt-1">${progress.toFixed(1)}% complete</div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-        
-        function showAddGoalModal() {
-            document.getElementById('add-goal-modal').classList.remove('hidden');
-            document.getElementById('add-goal-modal').classList.add('flex');
-        }
-        
-        function hideAddGoalModal() {
-            document.getElementById('add-goal-modal').classList.remove('flex');
-            document.getElementById('add-goal-modal').classList.add('hidden');
-        }
-        
-        function addNewGoal() {
-            const name = document.getElementById('goal-name').value.trim();
-            const target = parseFloat(document.getElementById('goal-target').value);
-            const deadline = document.getElementById('goal-deadline').value;
-            
-            if (!name || !target) {
-                alert("Please enter goal name and target amount");
-                return;
-            }
-            
-            goals.push({
-                id: Date.now(),
-                name,
-                target,
-                saved: 0,
-                deadline: deadline || null
-            });
-            
-            saveData();
-            hideAddGoalModal();
-            renderGoals();
-            renderActiveGoals();
-            showToast("Goal created successfully");
-        }
-        
-        function contributeToGoal(goalId, e) {
-            e.stopImmediatePropagation();
-            const goal = goals.find(g => g.id === goalId);
-            if (!goal) return;
-            
-            const amountStr = prompt(`How much would you like to add to "${goal.name}"?`, "100");
-            const amount = parseFloat(amountStr);
-            if (!amount || amount <= 0) return;
-            
-            const savingsAcc = accounts.find(a => a.type === 'savings') || accounts[0];
-            if (savingsAcc.balance < amount) {
-                alert("Not enough balance in account");
-                return;
-            }
-            
-            savingsAcc.balance -= amount;
-            goal.saved += amount;
-            
-            transactions.unshift({
-                id: Date.now(),
-                date: new Date().toISOString().split('T')[0],
-                description: `Contribution to ${goal.name}`,
-                amount: -amount,
-                type: "expense",
-                category: "Other",
-                account: savingsAcc.name
-            });
-            
-            saveData();
-            renderGoals();
-            renderActiveGoals();
-            renderAccounts();
-            updateOverviewNumbers();
-            showToast(`Added ${formatCurrency(amount)} to ${goal.name}`);
-        }
-        
+        let currentView = 'overview'; let currentTransactionType = 'expense'; let currentGoalId = null; let pieChart = null;
+
+        function saveData() { localStorage.setItem('flow_transactions', JSON.stringify(transactions)); localStorage.setItem('flow_accounts', JSON.stringify(accounts)); localStorage.setItem('flow_budgets', JSON.stringify(budgets)); localStorage.setItem('flow_goals', JSON.stringify(goals)); }
+        function formatCurrency(n) { return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n); }
+        function formatDate(d) { return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+
+        function calculateTotals() { let inc = 0, exp = 0; transactions.forEach(t => t.type === 'income' ? inc += t.amount : exp += Math.abs(t.amount)); return { income: inc, expenses: exp, balance: accounts.reduce((s,a)=>s+a.balance,0) }; }
+
         function updateOverviewNumbers() {
-            const { income, expenses, balance } = calculateTotals();
+            const {income, expenses, balance} = calculateTotals();
             document.getElementById('total-balance').textContent = formatCurrency(balance);
             document.getElementById('total-income').textContent = formatCurrency(income);
             document.getElementById('total-expenses').textContent = formatCurrency(expenses);
-            document.getElementById('net-worth').textContent = formatCurrency(balance + 36072);
+            const totalGoals = goals.reduce((sum, g) => sum + g.saved, 0);
+            document.getElementById('total-goals-saved').textContent = formatCurrency(totalGoals);
         }
-        
-        function renderInsights() {
-            const ctx = document.getElementById('category-pie-chart');
-            const categoryTotals = {};
-            transactions.forEach(t => {
-                if (t.type === 'expense') categoryTotals[t.category] = (categoryTotals[t.category] || 0) + Math.abs(t.amount);
-            });
-            
-            if (pieChartInstance) pieChartInstance.destroy();
-            
-            pieChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categoryTotals),
-                    datasets: [{ data: Object.values(categoryTotals), backgroundColor: ['#0A84FF','#FF9500','#34C759','#FF3B30','#AF52DE'], borderColor: '#000', borderWidth: 3 }]
-                },
-                options: { responsive: true, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: '#a1a1aa' } } } }
-            });
-            
-            const topContainer = document.getElementById('top-categories');
-            topContainer.innerHTML = '';
-            Object.entries(categoryTotals).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([cat, val]) => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between';
-                div.innerHTML = `<span>${cat}</span><span class="font-semibold">${formatCurrency(val)}</span>`;
-                topContainer.appendChild(div);
-            });
+
+        function renderAccounts() { const c = document.getElementById('accounts-container'); c.innerHTML = ''; accounts.forEach(a => { const el = document.createElement('div'); el.className = `music-card min-w-[210px] border border-zinc-700 rounded-3xl p-5 flex-shrink-0`; el.innerHTML = `<div class="flex justify-between"><div><p class="font-medium">${a.name}</p><p class="text-xs text-zinc-400">${a.type}</p></div><div class="w-8 h-8 rounded-2xl flex items-center justify-center" style="background:${a.color}20"><i class="fa-solid fa-wallet" style="color:${a.color}"></i></div></div><p class="mt-7 text-3xl font-semibold tracking-tighter finance-number">${formatCurrency(a.balance)}</p>`; c.appendChild(el); }); }
+
+        function renderRecentTransactions() { const c = document.getElementById('recent-transactions'); c.innerHTML = ''; [...transactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).forEach(t => { const row = document.createElement('div'); row.className = `px-5 py-[17px] flex justify-between items-center border-b border-zinc-800 last:border-none`; const color = t.type==='income'?'text-emerald-400':'text-red-400'; row.innerHTML = `<div class="flex items-center gap-x-3"><div class="w-9 h-9 rounded-2xl flex items-center justify-center ${t.type==='income'?'bg-emerald-500/10':'bg-red-500/10'}"><i class="fa-solid ${t.type==='income'?'fa-arrow-down text-emerald-400':'fa-arrow-up text-red-400'}"></i></div><div><p class="font-medium">${t.description}</p><p class="text-xs text-zinc-400">${formatDate(t.date)} • ${t.category}</p></div></div><p class="font-semibold finance-number ${color}">${t.type==='income'?'+':''}${formatCurrency(Math.abs(t.amount))}</p>`; c.appendChild(row); }); }
+
+        function renderActiveGoals() { const c = document.getElementById('active-goals-container'); c.innerHTML = ''; goals.slice(0,3).forEach(g => { const pct = Math.min((g.saved/g.target)*100,100); const el = document.createElement('div'); el.className = `music-card min-w-[230px] border border-zinc-700 rounded-3xl p-5 flex-shrink-0 cursor-pointer`; el.onclick = () => showGoalDetail(g.id); el.innerHTML = `<div class="flex justify-between"><p class="font-semibold">${g.name}</p><span class="text-xs px-2 py-0.5 bg-zinc-800 rounded">${pct.toFixed(0)}%</span></div><div class="h-2 bg-zinc-800 rounded-full my-3"><div class="h-2 bg-emerald-400 rounded-full goal-progress" style="width:${pct}%"></div></div><div class="flex justify-between text-xs"><span class="text-emerald-400">${formatCurrency(g.saved)}</span><span class="text-zinc-400">of ${formatCurrency(g.target)}</span></div>`; c.appendChild(el); }); }
+
+        function renderGoals() { const c = document.getElementById('goals-grid'); c.innerHTML = ''; goals.forEach(g => { const pct = Math.min((g.saved / g.target) * 100, 100); const card = document.createElement('div'); card.className = `music-card border border-zinc-700 rounded-3xl p-6 cursor-pointer`; card.onclick = () => showGoalDetail(g.id); card.innerHTML = `<div class="flex justify-between mb-4"><div><p class="font-semibold">${g.name}</p>${g.deadline ? `<p class="text-xs text-zinc-400">Due ${formatDate(g.deadline)}</p>` : ''}</div><button onclick="event.stopImmediatePropagation(); contributeToGoal(${g.id})" class="text-xs px-3 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-2xl">+ Add</button></div><div><div class="flex justify-between text-sm mb-1"><span class="text-emerald-400 font-medium">${formatCurrency(g.saved)}</span><span class="text-zinc-400">/ ${formatCurrency(g.target)}</span></div><div class="h-3 bg-zinc-800 rounded-full overflow-hidden"><div class="h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full goal-progress" style="width:${pct}%"></div></div><div class="text-right text-xs text-zinc-400 mt-1">${pct.toFixed(0)}% complete</div></div>`; c.appendChild(card); }); }
+
+        function showGoalDetail(goalId) { const goal = goals.find(g => g.id === goalId); if (!goal) return; const modal = document.createElement('div'); modal.className = `fixed inset-0 bg-black/70 flex items-center justify-center z-[110]`; modal.innerHTML = `<div class="modal bg-zinc-900 border border-zinc-700 w-full max-w-md rounded-3xl p-7"><div class="flex justify-between items-start"><div><h3 class="text-2xl font-semibold">${goal.name}</h3><p class="text-emerald-400">${formatCurrency(goal.saved)} of ${formatCurrency(goal.target)}</p></div><button onclick="this.closest('.fixed').remove()" class="text-zinc-400 text-xl">×</button></div><div class="my-6"><div class="h-3 bg-zinc-800 rounded-full"><div class="h-3 bg-emerald-400 rounded-full" style="width: ${Math.min((goal.saved/goal.target)*100,100)}%"></div></div></div><div class="mb-4"><div class="flex justify-between text-sm mb-2"><span class="font-medium">Contributions</span> <span class="text-xs text-zinc-400">${goal.contributions?.length || 0} total</span></div><div class="max-h-48 overflow-auto text-sm space-y-2 pr-2">${(goal.contributions && goal.contributions.length > 0) ? goal.contributions.map(c => `<div class="flex justify-between bg-zinc-950 px-4 py-2 rounded-2xl"><span>${formatDate(c.date)}</span><span class="text-emerald-400">+${formatCurrency(c.amount)}</span></div>`).join('') : `<p class="text-zinc-400 text-sm">No contributions yet.</p>`}</div></div><div class="flex gap-x-3"><button onclick="this.closest('.fixed').remove(); contributeToGoal(${goal.id})" class="flex-1 py-3 bg-emerald-500 text-black rounded-2xl font-semibold">Add Contribution</button><button onclick="this.closest('.fixed').remove()" class="flex-1 py-3 border border-zinc-700 rounded-2xl">Close</button></div></div>`; document.body.appendChild(modal); }
+
+        function contributeToGoal(goalId) { currentGoalId = goalId; const goal = goals.find(g => g.id === goalId); document.getElementById('contribute-goal-name').textContent = goal.name; document.getElementById('goal-contribute-modal').classList.remove('hidden'); document.getElementById('goal-contribute-modal').classList.add('flex'); setTimeout(() => document.getElementById('contribute-amount').focus(), 100); }
+        function hideContributeModal() { document.getElementById('goal-contribute-modal').classList.remove('flex'); document.getElementById('goal-contribute-modal').classList.add('hidden'); document.getElementById('contribute-amount').value = ''; }
+
+        function confirmContribution() {
+            const amount = parseFloat(document.getElementById('contribute-amount').value);
+            if (!amount || amount <= 0 || !currentGoalId) return;
+            const goal = goals.find(g => g.id === currentGoalId);
+            const acc = accounts.find(a => a.type === 'savings') || accounts[0];
+            if (acc.balance < amount) { alert("Not enough balance"); return; }
+            acc.balance -= amount; goal.saved += amount;
+            if (!goal.contributions) goal.contributions = [];
+            goal.contributions.unshift({ date: new Date().toISOString().split('T')[0], amount });
+            transactions.unshift({ id: Date.now(), date: new Date().toISOString().split('T')[0], description: `Contribution to ${goal.name}`, amount: -amount, type: "expense", category: "Other", account: acc.name });
+            saveData(); hideContributeModal(); renderGoals(); renderActiveGoals(); renderAccounts(); updateOverviewNumbers(); showToast(`Contributed ${formatCurrency(amount)}`);
         }
-        
-        function setTransactionType(type) {
-            currentTransactionType = type;
-            const exp = document.getElementById('type-expense');
-            const inc = document.getElementById('type-income');
-            if (type === 'expense') {
-                exp.classList.add('bg-zinc-800'); exp.classList.remove('text-zinc-400');
-                inc.classList.remove('bg-zinc-800'); inc.classList.add('text-zinc-400');
-            } else {
-                inc.classList.add('bg-zinc-800'); inc.classList.remove('text-zinc-400');
-                exp.classList.remove('bg-zinc-800'); exp.classList.add('text-zinc-400');
-            }
-        }
-        
-        function showAddTransactionModal() {
-            document.getElementById('add-transaction-modal').classList.remove('hidden');
-            document.getElementById('add-transaction-modal').classList.add('flex');
-            setTransactionType('expense');
-            document.getElementById('txn-date').value = new Date().toISOString().split('T')[0];
-            
-            const select = document.getElementById('txn-account');
-            select.innerHTML = '';
-            accounts.forEach(a => {
-                const opt = document.createElement('option');
-                opt.value = a.name; opt.textContent = a.name;
-                select.appendChild(opt);
-            });
-        }
-        
-        function hideAddTransactionModal() {
-            document.getElementById('add-transaction-modal').classList.remove('flex');
-            document.getElementById('add-transaction-modal').classList.add('hidden');
-        }
-        
-        function addTransaction() {
-            const amount = parseFloat(document.getElementById('txn-amount').value);
-            const desc = document.getElementById('txn-description').value.trim();
-            const cat = document.getElementById('txn-category').value;
-            const date = document.getElementById('txn-date').value;
-            const accName = document.getElementById('txn-account').value;
-            
-            if (!amount || !desc) return alert("Amount and description required");
-            
-            const finalAmount = currentTransactionType === 'expense' ? -Math.abs(amount) : Math.abs(amount);
-            
-            const newTxn = { id: Date.now(), date, description: desc, amount: finalAmount, type: currentTransactionType, category: cat, account: accName };
-            transactions.unshift(newTxn);
-            
-            const acc = accounts.find(a => a.name === accName);
-            if (acc) acc.balance += finalAmount;
-            
-            saveData();
-            hideAddTransactionModal();
-            
-            updateOverviewNumbers();
-            renderAccounts();
-            renderRecentTransactions();
-            renderActiveGoals();
-            if (currentView === 'transactions') renderAllTransactions();
-            if (currentView === 'budgets') renderBudgets();
-            if (currentView === 'insights') renderInsights();
-            
-            showToast("Transaction added");
-        }
-        
-        function deleteTransaction(id, e) {
-            e.stopImmediatePropagation();
-            if (!confirm("Delete this transaction?")) return;
-            
-            const idx = transactions.findIndex(t => t.id === id);
-            const txn = transactions[idx];
-            const acc = accounts.find(a => a.name === txn.account);
-            if (acc) acc.balance -= txn.amount;
-            
-            transactions.splice(idx, 1);
-            saveData();
-            
-            updateOverviewNumbers();
-            renderAccounts();
-            renderRecentTransactions();
-            if (currentView === 'transactions') renderAllTransactions();
-        }
-        
-        function showToast(msg) {
-            const toast = document.createElement('div');
-            toast.className = `fixed bottom-20 left-1/2 -translate-x-1/2 bg-zinc-800 px-5 py-3 rounded-2xl flex items-center gap-x-2 border border-zinc-700 z-[200]`;
-            toast.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i><span>${msg}</span>`;
-            document.body.appendChild(toast);
-            setTimeout(() => { toast.style.transition = 'all .2s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 200); }, 2000);
-        }
-        
-        function switchView(view) {
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.getElementById(`view-${view}`).classList.remove('hidden');
-            
-            document.querySelectorAll('[id^="nav-"]').forEach(n => n.classList.remove('active', 'text-white'));
-            const nav = document.getElementById(`nav-${view}`);
-            if (nav) nav.classList.add('active', 'text-white');
-            
-            const titles = { overview: 'Overview', transactions: 'Transactions', budgets: 'Budgets', goals: 'Savings Goals', insights: 'Insights' };
-            document.getElementById('view-title').textContent = titles[view] || 'Overview';
-            currentView = view;
-            
-            if (view === 'overview') { renderAccounts(); renderRecentTransactions(); renderActiveGoals(); updateOverviewNumbers(); }
-            if (view === 'transactions') renderAllTransactions();
-            if (view === 'budgets') renderBudgets();
-            if (view === 'goals') renderGoals();
-            if (view === 'insights') renderInsights();
-        }
-        
-        function handleGlobalSearch(e) {
-            if (currentView !== 'transactions') switchView('transactions');
-            const term = e.target.value.toLowerCase();
-            if (!term) return renderAllTransactions();
-            const filtered = transactions.filter(t => 
-                t.description.toLowerCase().includes(term) || t.category.toLowerCase().includes(term)
-            );
-            renderAllTransactions(filtered);
-        }
-        
-        function initializeFilters() {
-            const catSelect = document.getElementById('filter-category');
-            const cats = [...new Set(transactions.map(t => t.category))];
-            cats.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c; opt.textContent = c;
-                catSelect.appendChild(opt);
-            });
-        }
-        
-        function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').then(() => {
-                    console.log('%c[flow.] Service Worker registered', 'color:#666');
-                }).catch(console.error);
-            }
-        }
-        
-        function initializeApp() {
-            updateBudgetSpending();
-            updateOverviewNumbers();
-            renderAccounts();
-            renderRecentTransactions();
-            renderActiveGoals();
-            renderBudgets();
-            
-            document.getElementById('view-overview').classList.remove('hidden');
-            document.getElementById('nav-overview').classList.add('active', 'text-white');
-            
-            initializeFilters();
-            registerServiceWorker();
-            
-            document.addEventListener('keydown', e => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "/") {
-                    e.preventDefault();
-                    showAddTransactionModal();
-                }
-            });
-            
-            console.log('%c[flow.] App initialized with Goals + PWA support', 'color:#666');
-        }
-        
+
+        function showAddGoalModal() { const name = prompt("Goal name:"); if (!name) return; const target = parseFloat(prompt("Target amount:")); if (!target) return; goals.push({id:Date.now(), name, target, saved:0, deadline: null, contributions: []}); saveData(); renderGoals(); renderActiveGoals(); }
+
+        function renderBudgets() { const c = document.getElementById('budgets-grid'); c.innerHTML = ''; Object.keys(budgets).forEach(cat => { const b = budgets[cat]; const pct = Math.min((b.spent / b.budgeted) * 100, 100); const el = document.createElement('div'); el.className = `music-card border border-zinc-700 rounded-3xl p-6`; el.innerHTML = `<div class="flex justify-between"><p class="font-semibold">${cat}</p></div><div class="mt-4"><div class="flex justify-between text-sm"><span>${formatCurrency(b.spent)}</span><span class="text-xs text-zinc-400">/ ${formatCurrency(b.budgeted)}</span></div><div class="h-2 bg-zinc-800 rounded-full mt-2"><div class="h-2 bg-emerald-400 rounded-full" style="width:${pct}%"></div></div></div>`; c.appendChild(el); }); }
+
+        function updateBudgetSpending() { Object.keys(budgets).forEach(k => budgets[k].spent = 0); transactions.forEach(t => { if (t.type === 'expense' && budgets[t.category]) budgets[t.category].spent += Math.abs(t.amount); }); }
+
+        function renderInsights() { const ctx = document.getElementById('category-pie-chart'); const totals = {}; transactions.forEach(t => { if (t.type==='expense') totals[t.category] = (totals[t.category]||0) + Math.abs(t.amount); }); if (pieChart) pieChart.destroy(); pieChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(totals), datasets: [{data: Object.values(totals), backgroundColor: ['#0A84FF','#FF9500','#34C759','#FF3B30','#AF52DE'] }] }, options: { cutout: '70%', plugins: { legend: { position: 'right', labels: { color: '#a1a1aa' } } } } }); const top = document.getElementById('top-categories'); top.innerHTML = ''; Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([k,v]) => { const d = document.createElement('div'); d.className='flex justify-between text-sm'; d.innerHTML = `<span>${k}</span><span class="font-semibold">${formatCurrency(v)}</span>`; top.appendChild(d); }); }
+
+        function switchView(view) { document.querySelectorAll('.view').forEach(v => v.classList.add('hidden')); document.getElementById('view-' + view).classList.remove('hidden'); document.querySelectorAll('[id^="nav-"]').forEach(n => n.classList.remove('active','text-white')); const navEl = document.getElementById('nav-' + view); if (navEl) navEl.classList.add('active', 'text-white'); document.getElementById('view-title').textContent = view.charAt(0).toUpperCase() + view.slice(1); if (view === 'overview') { renderAccounts(); renderRecentTransactions(); renderActiveGoals(); updateOverviewNumbers(); } if (view === 'budgets') renderBudgets(); if (view === 'goals') renderGoals(); if (view === 'insights') renderInsights(); }
+
+        function showToast(msg) { const t = document.createElement('div'); t.className = `fixed bottom-20 left-1/2 -translate-x-1/2 bg-zinc-800 px-5 py-3 rounded-2xl flex items-center gap-x-2 z-[200]`; t.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> <span>${msg}</span>`; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+
+        function initializeApp() { updateBudgetSpending(); updateOverviewNumbers(); renderAccounts(); renderRecentTransactions(); renderActiveGoals(); renderBudgets(); document.getElementById('view-overview').classList.remove('hidden'); document.getElementById('nav-overview').classList.add('active','text-white'); document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === "/") { e.preventDefault(); /* showAddTransactionModal */ } }); if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); } console.log('%c[flow.] Enhanced Goals + PWA ready', 'color:#666'); }
         window.onload = initializeApp;
     </script>
 </body>
